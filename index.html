@@ -101,8 +101,15 @@
   }
   .hero-subtitle {
     font-size: 1.15rem; color: var(--ink-muted);
-    max-width: 520px; margin: 0 auto 2.5rem;
+    max-width: 520px; margin: 0 auto 1.5rem;
     line-height: 1.9;
+  }
+  .hero-portrait {
+    width: 120px; height: 120px;
+    border-radius: 50%; object-fit: cover;
+    border: 3px solid var(--white);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    margin-bottom: 2rem;
   }
   .hero-pillars {
     display: flex; justify-content: center; gap: 2rem;
@@ -421,6 +428,50 @@
   }
   .btn-cta:hover { background: var(--accent-light); transform: translateY(-1px); }
 
+  /* ── 照片墙 ── */
+  .gallery-section { padding: 6rem 2rem; background: var(--paper); }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    max-width: 1280px; margin: 0 auto;
+  }
+  .gallery-item {
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: var(--shadow-sm);
+  }
+  .gallery-item:hover { transform: scale(1.03); box-shadow: var(--shadow-lg); }
+  .gallery-item img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  /* lightbox */
+  .lightbox {
+    display: none; position: fixed;
+    inset: 0; z-index: 10001;
+    background: rgba(0,0,0,0.92);
+    justify-content: center; align-items: center;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox img {
+    max-width: 90vw; max-height: 85vh;
+    border-radius: 8px; box-shadow: 0 8px 60px rgba(0,0,0,0.5);
+  }
+  .lightbox-close {
+    position: absolute; top: 2rem; right: 2rem;
+    font-size: 2rem; color: var(--white);
+    cursor: pointer; z-index: 10002;
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+
   footer {
     padding: 3rem 2rem; text-align: center;
     background: var(--ink); color: rgba(255,255,255,0.35);
@@ -463,6 +514,7 @@
   <p class="hero-subtitle">
     思想食堂十年人文游学实践，融合 DeepTech+ 前沿科技社区——让每一位企业家在文明的回响中找到方向，在科学的浪尖上看见未来。
   </p>
+  <img class="hero-portrait" src="img/huangshifu-portrait.jpg" alt="黄师傅" loading="eager">
   <div class="hero-pillars">
     <a href="#humanities" class="pillar humanities">
       <div class="pillar-emoji">🏛️</div>
@@ -605,6 +657,24 @@
   </div>
 </section>
 
+<!-- ═══════════ 照片墙 ═══════════ -->
+<section class="gallery-section" id="gallery">
+  <div class="sec-inner">
+    <div class="sec-header">
+      <span class="sec-tag">Moments</span>
+      <h2 class="sec-title">黄师傅的瞬间</h2>
+      <p class="sec-desc">镜头里的风景与思考</p>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <span class="lightbox-close">&times;</span>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
 <!-- ═══════════ CTA ═══════════ -->
 <section class="cta-section" id="cta">
   <h2 class="cta-title">链接你的科学家</h2>
@@ -692,6 +762,34 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (t) t.scrollIntoView({behavior:'smooth',block:'start'});
   });
 });
+
+// ── 照片墙 ──
+(function() {
+  const total = 106, cols = 4;
+  // 精选索引 — 大约每4张取1张，优先包含已知好照片
+  const picks = [];
+  for (let i = 0; i < total; i++) {
+    if (i % cols === 0 || i === 50 || i === 51 || i === 89) picks.push(i);
+  }
+  const grid = document.getElementById('galleryGrid');
+  picks.forEach(i => {
+    const idx = String(i).padStart(3, '0');
+    const src = `img/photos/thumb_${idx}.jpg`;
+    const fullSrc = src.replace('thumb_', 'full_').replace('.jpg', '');
+    const div = document.createElement('div');
+    div.className = 'gallery-item';
+    div.innerHTML = `<img src="${src}" alt="Photo ${i}" loading="lazy" onclick="event.stopPropagation();openLightbox('${src}')">`;
+    grid.appendChild(div);
+  });
+})();
+
+window.openLightbox = function(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('active');
+};
+window.closeLightbox = function() {
+  document.getElementById('lightbox').classList.remove('active');
+};
 </script>
 </body>
 </html>
